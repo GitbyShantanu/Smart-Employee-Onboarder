@@ -1,4 +1,6 @@
 .env
 .venv
+fastenv/
+db_employee
 __pycache__
-.vscode 
+.vscode

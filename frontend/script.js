@@ -299,7 +299,9 @@ document.getElementById("employee-form").addEventListener("submit", async (e) =>
 
         const result = await res.json();
         console.log(currentEditId ? "Employee updated:" : "Employee created:", result);
-        showToast(currentEditId ? "Employee updated successfully" : "Employee added successfully", "success", 7000);
+        
+        const empName = `${body.first_name} ${body.last_name}`;
+        showToast(currentEditId ? `Employee ${empName} updated successfully` : `Employee ${empName} created successfully`, "success", 7000);
         
         closeModal();
         displayEmployees();
@@ -345,8 +347,16 @@ async function deleteEmployee(id, btn) {
 
         const result = await res.json();
         console.log("Employee deleted:", result);
-        showToast("Employee deleted successfully", "success", 7000);
-        displayEmployees();
+        
+        // Find the employee name before we delete it from the array for the toast
+        const emp = allEmployees.find(e => e.id === id);
+        const empName = emp ? `${emp.first_name} ${emp.last_name}` : "Employee";
+        
+        showToast(`${empName} deleted successfully`, "success", 7000);
+        
+        // Instantly remove from UI without showing the loading spinner
+        allEmployees = allEmployees.filter(emp => emp.id !== id);
+        renderTable();
     } catch (error) {
         console.error("Error deleting employee:", error);
         showToast("Failed to delete employee: " + handleError(error, null), "danger");
