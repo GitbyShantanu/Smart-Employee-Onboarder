@@ -1,0 +1,66 @@
+# Agentic AI Email Onboarding
+
+This document outlines the plan for implementing the AI-driven HR onboarding webhook. The goal is to create an endpoint that receives HR emails and uses OpenAI to extract employee details, asking for missing information if necessary, and saving to the database when all required fields are present.
+
+## Overview of the Workflow
+
+1. **Request Reception:** 
+   - A POST request is sent to `/api/ai-onboarding` with the email body (`text`) and an optional `thread_id`.
+   - If `thread_id` is missing, a new unique ID (like a UUID) will be generated to start a new conversation thread.
+
+2. **Conversation History (Memory):**
+   - We will use an in-memory Python dictionary to store the conversation history for each `thread_id`. 
+   - When a new request comes in with an existing `thread_id`, the backend will retrieve the past messages from the dictionary to give the AI context of the ongoing conversation.
+
+3. **AI Processing:**
+   - The backend will send the conversation history along with a strong **System Prompt** to the OpenAI API (e.g., `gpt-4o-mini`).
+   - The prompt will instruct the AI to act as an HR assistant and extract the following fields required by your `EmployeeCreate` schema:
+     - `first_name`
+     - `middle_name`
+     - `last_name`
+     - `gender`
+     - `date_of_birth` (YYYY-MM-DD format)
+     - `mobile_number`
+     - `email`
+     - `marrital_status`
+     - `blood_group`
+   - We will use OpenAI's **Function Calling** (or Structured Outputs) feature to enforce the output structure.
+
+4. **Decision Logic:**
+   - **Scenario A (Missing Info):** If the AI detects that some required fields are missing from the current and past emails, it will respond with a friendly, conversational message asking *only* for the missing fields.
+     - *Response:* `{"status": "missing_info", "message": "Could you please provide the employee's date of birth and blood group?", "thread_id": "12345"}`
+   - **Scenario B (All Info Present):** If the AI successfully extracts all required fields, it will output a JSON object matching the `EmployeeCreate` schema.
+     - The backend will parse this JSON.
+     - Create a new `Employee` record in the SQLite database.
+     - Clear the `thread_id` from the in-memory dictionary.
+     - *Response:* `{"status": "success", "message": "Employee John Doe has been successfully onboarded.", "thread_id": "12345", "employee_id": 1}`
+
+## Open Questions & Clarifications
+
+> [!WARNING]
+> Your `EmployeeCreate` schema requires `middle_name` as a mandatory string (`middle_name: str`), but it was not explicitly listed in your prompt's required fields list. Should the AI enforce `middle_name` as required, or should we make it optional in the schema?
+
+> [!IMPORTANT]
+> The in-memory dictionary will reset whenever the FastAPI server restarts. This is fine for development and testing, but in a production environment, you would want to use a persistent store like Redis or a database table for conversation history. Are you okay with the in-memory approach for now?
+
+> [!NOTE]
+> Do you have an `OPENAI_API_KEY` ready to be added to your environment variables (e.g., a `.env` file)?
+
+## Proposed Changes
+
+### `backend/routers/email_agent.py`
+[NEW] Create the router file.
+- Define a Pydantic schema for the incoming request (`AgentRequest`).
+- Define the in-memory dictionary `thread_memory = {}`.
+- Implement the `POST /api/ai-onboarding` endpoint.
+- Add the OpenAI integration and logic to parse the output and interact with the database.
+
+### `backend/main.py`
+[MODIFY] `backend/main.py`
+- Import the new `email_agent` router.
+- Add `app.include_router(email_agent.router)` to register the new endpoint.
+
+## Verification Plan
+1. Send an initial POST request with an incomplete email (e.g., "Please onboard John Doe. His email is john@test.com"). Verify it returns `missing_info` and the `thread_id`.
+2. Send a follow-up POST request using the returned `thread_id` with the rest of the information.
+3. Verify it returns `success` and the employee is saved in the database.

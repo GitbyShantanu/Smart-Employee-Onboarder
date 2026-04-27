@@ -1,0 +1,110 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+}
+
+.table {
+    font-size: 0.95rem;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.table th {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table td:last-child {
+    white-space: nowrap;
+}
+
+/* Make the Actions column sticky on the right */
+.table th:last-child,
+.table td:last-child {
+    position: sticky;
+    right: 0;
+    background-color: white;
+    z-index: 1;
+}
+
+.table thead th:last-child {
+    background-color: #f8f9fa;
+}
+
+.table-responsive {
+    font-size: 0.9rem;
+}
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+.btn-outline-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.2);
+}
+
+.toast {
+    z-index: 1050;
+    border-radius: 8px;
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+}
