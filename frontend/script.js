@@ -1,16 +1,11 @@
 const API = "http://127.0.0.1:8000/employees";
 
 const formFields = {
-    firstName: document.getElementById("first_name"),
-    middleName: document.getElementById("middle_name"),
-    lastName: document.getElementById("last_name"),
-    gender: document.getElementById("gender"),
-    dob: document.getElementById("date_of_birth"),
-    mobile: document.getElementById("mobile_number"),
-    alternateMobile: document.getElementById("alternate_mobile_number"),
+    name: document.getElementById("name"),
     email: document.getElementById("email"),
-    maritalStatus: document.getElementById("marrital_status"),
-    bloodGroup: document.getElementById("blood_grp")
+    qualification: document.getElementById("qualification"),
+    dob: document.getElementById("date_of_birth"),
+    location: document.getElementById("location")
 };
 
 const table = document.querySelector("#table tbody");
@@ -21,6 +16,10 @@ const aiModal = new bootstrap.Modal(document.getElementById('aiModal'));
 const btnSendToAi = document.getElementById("btnSendToAi");
 const aiEmailInput = document.getElementById("aiEmailInput");
 const aiChatHistory = document.getElementById("aiChatHistory");
+
+const btnSendInitiatorEmail = document.getElementById("btnSendInitiatorEmail");
+const candidateEmailInput = document.getElementById("candidateEmailInput");
+const emailInitiatorModal = new bootstrap.Modal(document.getElementById('emailInitiatorModal'));
 
 let currentEditId = null;
 let aiThreadId = null; // Tracks the current conversation context
@@ -39,7 +38,7 @@ function handleError(error, status) {
     if (status === 422) return "Validation error (422)";
     if (status === 500) return "Server error (500)";
     if (status === 400) return "Bad Request (400)";
-    
+
     if (error && error.message) return error.message;
     if (!status) return "An unexpected error occurred.";
     return `Unexpected error (${status})`;
@@ -55,7 +54,7 @@ function showToast(message, type = "danger", delay = 5000) {
     const formattedMessage = message.replace(/\n/g, '<br>');
     toastBody.innerHTML = formattedMessage;
     toastEl.className = `toast align-items-center text-bg-${type} border-0`;
-    
+
     const toast = new bootstrap.Toast(toastEl, { delay: delay });
     toast.show();
 }
@@ -79,30 +78,20 @@ function closeModal() {
 // ---------------- FORM HELPERS ----------------
 function getFormData() {
     return {
-        first_name: formFields.firstName.value.trim(),
-        middle_name: formFields.middleName.value.trim(),
-        last_name: formFields.lastName.value.trim(),
-        gender: formFields.gender.value,
-        date_of_birth: formFields.dob.value,
-        mobile_number: parseInt(formFields.mobile.value.trim() || 0),
-        alternate_mobile_number: parseInt(formFields.alternateMobile.value.trim() || 0),
+        name: formFields.name.value.trim(),
         email: formFields.email.value.trim(),
-        marrital_status: formFields.maritalStatus.value,
-        blood_group: formFields.bloodGroup.value
+        qualification: formFields.qualification.value.trim(),
+        date_of_birth: formFields.dob.value.trim(),
+        location: formFields.location.value.trim()
     };
 }
 
 function setFormData(data) {
-    if (data.first_name !== undefined) formFields.firstName.value = data.first_name;
-    if (data.middle_name !== undefined) formFields.middleName.value = data.middle_name;
-    if (data.last_name !== undefined) formFields.lastName.value = data.last_name;
-    if (data.gender !== undefined) formFields.gender.value = data.gender;
-    if (data.date_of_birth !== undefined) formFields.dob.value = data.date_of_birth;
-    if (data.mobile_number !== undefined) formFields.mobile.value = data.mobile_number;
-    if (data.alternate_mobile_number !== undefined) formFields.alternateMobile.value = data.alternate_mobile_number;
+    if (data.name !== undefined) formFields.name.value = data.name;
     if (data.email !== undefined) formFields.email.value = data.email;
-    if (data.marrital_status !== undefined) formFields.maritalStatus.value = data.marrital_status;
-    if (data.blood_group !== undefined) formFields.bloodGroup.value = data.blood_group;
+    if (data.qualification !== undefined) formFields.qualification.value = data.qualification;
+    if (data.date_of_birth !== undefined) formFields.dob.value = data.date_of_birth;
+    if (data.location !== undefined) formFields.location.value = data.location;
 }
 
 function clearForm() {
@@ -137,7 +126,7 @@ async function displayEmployees() {
                 } else if (errData?.message) {
                     errorMessage = errData.message;
                 }
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errorMessage);
         }
 
@@ -148,7 +137,7 @@ async function displayEmployees() {
     } catch (error) {
         console.error("Error loading employees:", error);
         showToast("Failed to load employees: " + handleError(error, null), "danger");
-        
+
         table.innerHTML = `
             <tr>
                 <td colspan="12" class="text-center py-4 text-danger">
@@ -189,24 +178,28 @@ function renderTable() {
 
     paginatedData.forEach(emp => {
         const row = document.createElement("tr");
-        
+
+        const date = new Date(emp.date_of_birth); // Your date source
+
+        const editedFormatDate = new Intl.DateTimeFormat('en-US', {
+            month: '2-digit',
+            day: '2-digit',
+            year: '2-digit'
+        }).format(date);
+
+
         row.innerHTML = `
             <td>${emp.id || ""}</td>
-            <td>${emp.first_name || ""}</td>
-            <td>${emp.middle_name || ""}</td>
-            <td>${emp.last_name || ""}</td>
-            <td>${emp.gender || ""}</td>
-            <td>${emp.date_of_birth || ""}</td>
-            <td>${emp.mobile_number || ""}</td>
-            <td>${emp.alternate_mobile_number || ""}</td>
+            <td>${emp.name || ""}</td>
+            <td>${emp.qualification || ""}</td>
             <td>${emp.email || ""}</td>
-            <td>${emp.marrital_status || ""}</td>
-            <td><span class="badge bg-danger">${emp.blood_group || ""}</span></td>
-            <td class="text-end"></td>
+            <td>${editedFormatDate || ""}</td>
+            <td>${emp.location || ""}</td>
+            <td></td>
         `;
 
         const actionCell = row.querySelector("td:last-child");
-        
+
         const editBtn = document.createElement("button");
         editBtn.className = "btn btn-sm btn-outline-primary me-2";
         editBtn.innerHTML = "<i class='bi bi-pencil-square'></i>";
@@ -218,12 +211,12 @@ function renderTable() {
             btnSave.textContent = "Update Employee";
             employeeModal.show();
         });
-        
+
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-sm btn-outline-danger me-2";
         deleteBtn.innerHTML = "<i class='bi bi-trash3'></i>";
         deleteBtn.addEventListener("click", () => deleteEmployee(emp.id, deleteBtn));
-        
+
         actionCell.appendChild(editBtn);
         actionCell.appendChild(deleteBtn);
         table.appendChild(row);
@@ -239,7 +232,7 @@ function renderTable() {
 // ---------------- CREATE & UPDATE EMPLOYEE ----------------
 document.getElementById("employee-form").addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     const form = document.getElementById("employee-form");
     if (!form.checkValidity()) {
         e.stopPropagation();
@@ -250,8 +243,8 @@ document.getElementById("employee-form").addEventListener("submit", async (e) =>
     const body = getFormData();
 
     // Frontend Validation
-    if (!body.first_name || !body.last_name) {
-        showToast("Please enter first and last name.", "warning");
+    if (!body.name) {
+        showToast("Please enter a name.", "warning");
         return;
     }
     if (!body.email) {
@@ -293,16 +286,16 @@ document.getElementById("employee-form").addEventListener("submit", async (e) =>
                 } else if (errData?.message) {
                     errorMessage = errData.message;
                 }
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errorMessage);
         }
 
         const result = await res.json();
         console.log(currentEditId ? "Employee updated:" : "Employee created:", result);
-        
-        const empName = `${body.first_name} ${body.last_name}`;
+
+        const empName = body.name;
         showToast(currentEditId ? `Employee ${empName} updated successfully` : `Employee ${empName} created successfully`, "success", 7000);
-        
+
         closeModal();
         displayEmployees();
     } catch (error) {
@@ -341,19 +334,19 @@ async function deleteEmployee(id, btn) {
                 } else if (errData?.message) {
                     errorMessage = errData.message;
                 }
-            } catch (e) {}
+            } catch (e) { }
             throw new Error(errorMessage);
         }
 
         const result = await res.json();
         console.log("Employee deleted:", result);
-        
+
         // Find the employee name before we delete it from the array for the toast
         const emp = allEmployees.find(e => e.id === id);
-        const empName = emp ? `${emp.first_name} ${emp.last_name}` : "Employee";
-        
+        const empName = emp ? emp.name : "Employee";
+
         showToast(`${empName} deleted successfully`, "success", 7000);
-        
+
         // Instantly remove from UI without showing the loading spinner
         allEmployees = allEmployees.filter(emp => emp.id !== id);
         renderTable();
@@ -374,7 +367,7 @@ btnSendToAi.addEventListener("click", async () => {
     // Append user's text to the chat
     aiChatHistory.innerHTML += `<div class="alert alert-secondary text-end"><strong>You:</strong> ${text}</div>`;
     aiEmailInput.value = "";
-    
+
     // Scroll to bottom
     aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
 
@@ -419,14 +412,66 @@ btnSendToAi.addEventListener("click", async () => {
 
 document.getElementById('aiModal').addEventListener('show.bs.modal', () => {
     aiEmailInput.value = '';
-    aiThreadId = null; // Reset the conversation state when opening the modal
-    aiChatHistory.innerHTML = `<div class="alert alert-info"><strong>Agent:</strong> Hello! Paste the raw new hire email below. I will extract the details, validate our required fields, and let you know if I need anything else.</div>`;
+    aiThreadId = null;
+    aiChatHistory.innerHTML = `<div class="alert alert-info"><strong>System:</strong> Paste the raw text or WhatsApp message from the candidate below. The system will parse and extract the required fields.</div>`;
+});
+
+// ---------------- SEND INITIATOR EMAIL ----------------
+btnSendInitiatorEmail.addEventListener("click", async () => {
+    const emailInputRaw = candidateEmailInput.value.trim();
+    if (!emailInputRaw) {
+        showToast("Please enter at least one valid email address.", "warning");
+        return;
+    }
+
+    // Split by comma and filter out empty strings
+    const emailArray = emailInputRaw.split(",").map(e => e.trim()).filter(e => e !== "");
+
+    if (emailArray.length === 0) {
+        showToast("Please enter valid email addresses.", "warning");
+        return;
+    }
+
+    const originalBtnText = btnSendInitiatorEmail.innerHTML;
+    btnSendInitiatorEmail.disabled = true;
+    btnSendInitiatorEmail.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/api/initiate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ emails: emailArray })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to send email.");
+
+        const successMsg = data.message;
+        candidateEmailInput.value = "";
+
+        // Wait for modal to be FULLY hidden (backdrop removed), then show toast
+        const modalEl = document.getElementById('emailInitiatorModal');
+        modalEl.addEventListener('hidden.bs.modal', function onHidden() {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            showToast(successMsg, "success", 7000);
+        });
+        emailInitiatorModal.hide();
+    } catch (error) {
+        showToast(error.message, "danger");
+    } finally {
+        btnSendInitiatorEmail.disabled = false;
+        btnSendInitiatorEmail.innerHTML = originalBtnText;
+    }
 });
 
 
 window.addEventListener("DOMContentLoaded", () => {
     displayEmployees();
-    
+
+    // Set max date for Date of Birth input to today
+    const today = new Date().toISOString().split("T")[0];
+    formFields.dob.setAttribute("max", today);
+
     document.getElementById("btnAddNew").addEventListener("click", openModal);
 
     document.getElementById("btnPrevPage").addEventListener("click", (e) => {
@@ -445,6 +490,40 @@ window.addEventListener("DOMContentLoaded", () => {
             renderTable();
         }
     });
+
+    // ---- Email Listener Status (read-only, auto-starts with server) ----
+    const listenerBadge = document.getElementById("listenerBadge");
+    const listenerInfo = document.getElementById("listenerInfo");
+
+    async function pollListenerStatus() {
+        try {
+            const res = await fetch("http://127.0.0.1:8000/api/listener/status");
+            if (res.ok) {
+                const data = await res.json();
+                if (data.is_running) {
+                    listenerBadge.textContent = "Online";
+                    listenerBadge.className = "badge rounded-pill bg-success";
+                    listenerInfo.textContent = "Monitoring inbox";
+                } else {
+                    listenerBadge.textContent = "Starting...";
+                    listenerBadge.className = "badge rounded-pill bg-warning text-dark";
+                    listenerInfo.textContent = "Initializing...";
+                }
+            } else {
+                listenerBadge.textContent = "Offline";
+                listenerBadge.className = "badge rounded-pill bg-secondary";
+                listenerInfo.textContent = "Server unreachable";
+            }
+        } catch (e) {
+            listenerBadge.textContent = "Offline";
+            listenerBadge.className = "badge rounded-pill bg-secondary";
+            listenerInfo.textContent = "Server unreachable";
+        }
+    }
+
+    // Poll immediately, then every 10 seconds (lightweight)
+    pollListenerStatus();
+    setInterval(pollListenerStatus, 10000);
 });
 
 console.log("App started...");

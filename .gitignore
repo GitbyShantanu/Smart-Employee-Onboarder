@@ -3,4 +3,6 @@
 fastenv/
 db_employee
 __pycache__
-.vscode
+.vscode/
+reminders.json
+thread_memory.json

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,19 +9,39 @@
     <link rel="stylesheet" href="style.css">
     <title>Employee Management</title>
 </head>
+
 <body>
 
     <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="text-center flex-grow-1 mb-0">Employee Management System</h2>
         </div>
 
-        <div class="d-flex justify-content-center mb-4">
-            <button type="button" class="btn btn-primary btn-lg" id="btnAddNew" data-bs-toggle="modal" data-bs-target="#employeeModal">
-                <i class="bi bi-plus-circle me-2"></i>Add New Employee
+        <!-- Email Listener Status Bar -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-mailbox2 me-2 fs-5"></i>
+                    <span class="fw-medium me-2">Email Listener</span>
+                    <span class="badge rounded-pill bg-secondary" id="listenerBadge"
+                        style="font-size: 0.75rem;">Connecting...</span>
+                </div>
+                <small class="text-muted" id="listenerInfo">Starting with server...</small>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mb-4 gap-3">
+            <button type="button" class="btn btn-outline-primary btn-lg" id="btnAddNew" data-bs-toggle="modal"
+                data-bs-target="#employeeModal">
+                <i class="bi bi-plus-circle me-2"></i>Add Manually
             </button>
-            <button type="button" class="btn btn-dark btn-lg ms-3" id="btnAiOnboard" data-bs-toggle="modal" data-bs-target="#aiModal">
-                <i class="bi bi-magic me-2"></i>Smart Email Onboarding
+            <button type="button" class="btn btn-outline-secondary btn-lg" id="btnAiOnboard" data-bs-toggle="modal"
+                data-bs-target="#aiModal">
+                <i class="bi bi-file-text me-2"></i>Parse from Text
+            </button>
+            <button type="button" class="btn btn-dark btn-lg" data-bs-toggle="modal"
+                data-bs-target="#emailInitiatorModal">
+                <i class="bi bi-envelope-paper me-2"></i>Send Onboarding Email
             </button>
         </div>
 
@@ -34,16 +55,11 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>First Name</th>
-                                <th>Middle Name</th>
-                                <th>Last Name</th>
-                                <th>Gender</th>
-                                <th>Date of Birth</th>
-                                <th>Mobile Number</th>
-                                <th>Alternate Mobile</th>
+                                <th>Name</th>
+                                <th>Qualification</th>
                                 <th>Email</th>
-                                <th>Marital Status</th>
-                                <th>Blood Group</th>
+                                <th>Date of Birth</th>
+                                <th>Location</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -77,89 +93,135 @@
                     <form id="employee-form" novalidate>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="first_name" placeholder="Enter first name" required> 
-                                <div class="invalid-feedback">First name is required</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="middle_name" class="form-label">Middle Name</label>
-                                <input type="text" class="form-control" id="middle_name" placeholder="Enter middle name">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="last_name" placeholder="Enter last name" required>
-                                <div class="invalid-feedback">Last name is required</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
-                                <select class="form-select" id="gender" required>
-                                    <option value="">Select gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                                <div class="invalid-feedback">Gender is required</div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" id="date_of_birth" required>
-                                <div class="invalid-feedback">Date of birth is required</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="mobile_number" class="form-label">Mobile Number <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" id="mobile_number" minlength="10" maxlength="10" placeholder="10-digit mobile number" required>
-                                <div class="invalid-feedback">Valid 10-digit mobile number is required</div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="alternate_mobile_number" class="form-label">Alternate Mobile Number</label>
-                                <input type="tel" class="form-control" id="alternate_mobile_number" minlength="10" maxlength="10" placeholder="10-digit mobile number">
+                                <label for="name" class="form-label">Full Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter full name"
+                                    required>
+                                <div class="invalid-feedback">Name is required</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control" id="email" placeholder="Enter email address" required>
+                                <input type="email" class="form-control" id="email" placeholder="Enter email address"
+                                    required>
                                 <div class="invalid-feedback">Valid email is required</div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="marrital_status" class="form-label">Marital Status <span class="text-danger">*</span></label>
-                                <select class="form-select" id="marrital_status" required>
-                                    <option value="">Select marital status</option>
-                                    <option value="Single">Single</option>
-                                    <option value="Married">Married</option>
+                                <label for="qualification" class="form-label">Qualification <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="qualification" required>
+                                    <option value="">Select highest degree</option>
+                                    <option value="B.Tech">B.Tech</option>
+                                    <option value="M.Tech">M.Tech</option>
+                                    <option value="B.E.">B.E.</option>
+                                    <option value="M.E.">M.E.</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="MCA">MCA</option>
+                                    <option value="B.Sc">B.Sc</option>
+                                    <option value="M.Sc">M.Sc</option>
+                                    <option value="MCS">MCS</option>
+                                    <option value="Ph.D">Ph.D</option>
+                                    <option value="MBA">MBA</option>
+                                    <option value="BBA">BBA</option>
+                                    <option value="B.Com">B.Com</option>
+                                    <option value="M.Com">M.Com</option>
+                                    <option value="B.A.">B.A.</option>
+                                    <option value="M.A.">M.A.</option>
+                                    <option value="Diploma">Diploma</option>
+                                    <option value="High School">High School</option>
+                                    <option value="Other (Non-Technical)">Other (Non-Technical)</option>
                                 </select>
-                                <div class="invalid-feedback">Marital status is required</div>
+                                <div class="invalid-feedback">Qualification is required</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="blood_grp" class="form-label">Blood Group <span class="text-danger">*</span></label>
-                                <select class="form-select" id="blood_grp" required>
-                                    <option value="">Select blood group</option>
-                                    <option value="A+">A+</option>
-                                    <option value="A-">A-</option>
-                                    <option value="B+">B+</option>
-                                    <option value="B-">B-</option>
-                                    <option value="AB+">AB+</option>
-                                    <option value="AB-">AB-</option>
-                                    <option value="O+">O+</option>
-                                    <option value="O-">O-</option>
+                                <label for="date_of_birth" class="form-label">Date of Birth <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="date_of_birth" required>
+                                <div class="invalid-feedback">Date of birth is required</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">Location <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="location" required>
+                                    <option value="">Select location</option>
+                                    <optgroup label="Maharashtra Districts">
+                                        <option value="Mumbai">Mumbai</option>
+                                        <option value="Pune">Pune</option>
+                                        <option value="Nagpur">Nagpur</option>
+                                        <option value="Nashik">Nashik</option>
+                                        <option value="Thane">Thane</option>
+                                        <option value="Aurangabad">Aurangabad</option>
+                                        <option value="Solapur">Solapur</option>
+                                        <option value="Amravati">Amravati</option>
+                                        <option value="Kolhapur">Kolhapur</option>
+                                        <option value="Navi Mumbai">Navi Mumbai</option>
+                                        <option value="Sangli">Sangli</option>
+                                        <option value="Jalgaon">Jalgaon</option>
+                                        <option value="Akola">Akola</option>
+                                        <option value="Latur">Latur</option>
+                                        <option value="Dhule">Dhule</option>
+                                        <option value="Ahmednagar">Ahmednagar</option>
+                                        <option value="Chandrapur">Chandrapur</option>
+                                        <option value="Parbhani">Parbhani</option>
+                                        <option value="Jalna">Jalna</option>
+                                        <option value="Beed">Beed</option>
+                                        <option value="Nanded">Nanded</option>
+                                        <option value="Wardha">Wardha</option>
+                                        <option value="Osmanabad">Osmanabad</option>
+                                        <option value="Nandurbar">Nandurbar</option>
+                                        <option value="Satara">Satara</option>
+                                        <option value="Sindhudurg">Sindhudurg</option>
+                                        <option value="Ratnagiri">Ratnagiri</option>
+                                        <option value="Gondia">Gondia</option>
+                                        <option value="Bhandara">Bhandara</option>
+                                        <option value="Gadchiroli">Gadchiroli</option>
+                                        <option value="Washim">Washim</option>
+                                        <option value="Yavatmal">Yavatmal</option>
+                                        <option value="Hingoli">Hingoli</option>
+                                        <option value="Buldhana">Buldhana</option>
+                                        <option value="Palghar">Palghar</option>
+                                        <option value="Raigad">Raigad</option>
+                                    </optgroup>
+                                    <optgroup label="Other States Cities">
+                                        <option value="Bangalore">Bangalore</option>
+                                        <option value="Delhi">Delhi</option>
+                                        <option value="New Delhi">New Delhi</option>
+                                        <option value="Hyderabad">Hyderabad</option>
+                                        <option value="Chennai">Chennai</option>
+                                        <option value="Kolkata">Kolkata</option>
+                                        <option value="Ahmedabad">Ahmedabad</option>
+                                        <option value="Surat">Surat</option>
+                                        <option value="Jaipur">Jaipur</option>
+                                        <option value="Lucknow">Lucknow</option>
+                                        <option value="Kanpur">Kanpur</option>
+                                        <option value="Indore">Indore</option>
+                                        <option value="Bhopal">Bhopal</option>
+                                        <option value="Patna">Patna</option>
+                                        <option value="Vadodara">Vadodara</option>
+                                        <option value="Ludhiana">Ludhiana</option>
+                                        <option value="Agra">Agra</option>
+                                        <option value="Varanasi">Varanasi</option>
+                                        <option value="Noida">Noida</option>
+                                        <option value="Gurgaon">Gurgaon</option>
+                                        <option value="Kochi">Kochi</option>
+                                        <option value="Trivandrum">Trivandrum</option>
+                                        <option value="Chandigarh">Chandigarh</option>
+                                    </optgroup>
                                 </select>
-                                <div class="invalid-feedback">Blood group is required</div>
+                                <div class="invalid-feedback">Location is required</div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success" id="btnSave" form="employee-form">Save Employee</button>
+                    <button type="submit" class="btn btn-success" id="btnSave" form="employee-form">Save
+                        Employee</button>
                 </div>
             </div>
         </div>
@@ -169,18 +231,21 @@
     <div class="modal fade" id="aiModal" tabindex="-1" aria-labelledby="aiModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="aiModalLabel"><i class="bi bi-robot me-2"></i>HR Onboarding Agent</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title" id="aiModalLabel"><i class="bi bi-file-text me-2"></i>Parse from Text</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="aiChatHistory" class="mb-3" style="max-height: 300px; overflow-y: auto;">
                         <div class="alert alert-info">
-                            <strong>Agent:</strong> Hello! Paste the raw new hire email below. I will extract the details, validate our required fields, and let you know if I need anything else.
+                            <strong>Agent:</strong> Hello! Paste the raw new hire email below. I will extract the
+                            details, validate our required fields, and let you know if I need anything else.
                         </div>
                     </div>
                     <div class="form-group">
-                        <textarea class="form-control" id="aiEmailInput" rows="3" placeholder="e.g. 'Please onboard Alice Smith. Her email is alice@example.com and she is a Female...'"></textarea>
+                        <textarea class="form-control" id="aiEmailInput" rows="3"
+                            placeholder="e.g. 'Please onboard Alice Smith. Her email is alice@example.com and she is a Female...'"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer bg-light">
@@ -193,9 +258,41 @@
         </div>
     </div>
 
+    <!-- Email Initiator Modal -->
+    <div class="modal fade" id="emailInitiatorModal" tabindex="-1" aria-labelledby="emailInitiatorModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="emailInitiatorModalLabel"><i class="bi bi-envelope-paper me-2"></i>Send
+                        Onboarding Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted">Enter the candidates' email addresses (comma separated) to trigger the
+                        automated onboarding workflow.</p>
+                    <div class="form-group mt-3">
+                        <label for="candidateEmailInput" class="form-label">Candidate Email(s) <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="candidateEmailInput"
+                            placeholder="e.g. alice@gmail.com, bob@gmail.com" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-dark" id="btnSendInitiatorEmail">
+                        <i class="bi bi-send-fill me-2"></i>Send Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 9999;">
-        <div class="toast align-items-center border-0" id="liveToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast align-items-center border-0" id="liveToast" role="alert" aria-live="assertive"
+            aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body" id="toastBody"></div>
                 <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -206,4 +303,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
