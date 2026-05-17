@@ -512,6 +512,17 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    document.getElementById("brandHome").addEventListener("click", () => {
+        if (currentPage !== 1) {
+            currentPage = 1;
+            renderTable();
+            showToast("Navigated to page 1", "info");
+        } else {
+            displayEmployees();
+            showToast("Database refreshed", "success");
+        }
+    });
+
     // ---- Email Listener Status (read-only, auto-starts with server) ----
     const listenerBadge = document.getElementById("listenerBadge");
     const listenerStatusWrapper = document.getElementById("listenerStatusWrapper");
