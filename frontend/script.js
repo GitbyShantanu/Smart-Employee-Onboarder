@@ -1,4 +1,20 @@
-const API = "/employees";
+// Automatically detect the correct API backend URL:
+// 1. If running on local Live Server or local file system, point to local FastAPI on port 8000.
+// 2. Otherwise, use relative paths (if frontend and backend are hosted together on Render).
+const getBackendUrl = () => {
+    const origin = window.location.origin;
+    if (origin.includes("127.0.0.1:5") || origin.includes("localhost:5") || window.location.protocol === "file:") {
+        return "http://127.0.0.1:8000";
+    }
+    if (origin.includes("netlify.app")) {
+        return "https://smart-employee-onboarder.onrender.com";
+    }
+    return ""; // Relative path
+};
+
+const BACKEND_URL = getBackendUrl();
+const API = `${BACKEND_URL}/employees`;
+
 
 const formFields = {
     name: document.getElementById("name"),
@@ -179,13 +195,13 @@ function renderTable() {
     paginatedData.forEach(emp => {
         const row = document.createElement("tr");
 
-        const date = new Date(emp.date_of_birth); // Your date source
+        // const date = new Date(emp.date_of_birth); // Your date source
 
-        const editedFormatDate = new Intl.DateTimeFormat('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: '2-digit'
-        }).format(date);
+        // const editedFormatDate = new Intl.DateTimeFormat('en-US', {
+        //     month: '2-digit',
+        //     day: '2-digit',
+        //     year: '2-digit'
+        // }).format(date);
 
 
         row.innerHTML = `
@@ -193,7 +209,7 @@ function renderTable() {
             <td>${emp.name || ""}</td>
             <td>${emp.qualification || ""}</td>
             <td>${emp.email || ""}</td>
-            <td>${editedFormatDate || ""}</td>
+            <td>${emp.date_of_birth || ""}</td>
             <td>${emp.location || ""}</td>
             <td></td>
         `;
@@ -377,7 +393,7 @@ btnSendToAi.addEventListener("click", async () => {
     btnSendToAi.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
     try {
-        const res = await fetch("/api/ai-onboarding", {
+        const res = await fetch(`${BACKEND_URL}/api/ai-onboarding`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: text, thread_id: aiThreadId })
@@ -437,7 +453,7 @@ btnSendInitiatorEmail.addEventListener("click", async () => {
     btnSendInitiatorEmail.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
 
     try {
-        const res = await fetch("/api/initiate", {
+        const res = await fetch(`${BACKEND_URL}/api/initiate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ emails: emailArray })
@@ -497,7 +513,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     async function pollListenerStatus() {
         try {
-            const res = await fetch("/api/listener/status");
+            const res = await fetch(`${BACKEND_URL}/api/listener/status`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.is_running) {

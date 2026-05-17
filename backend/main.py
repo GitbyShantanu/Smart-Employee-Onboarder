@@ -37,13 +37,9 @@ Base.metadata.create_all(bind=engine)
 app.include_router(employee.router)
 app.include_router(email_agent.router)
 
-# Serve frontend static files (CSS, JS)
-app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
-
-@app.get("/")
-def serve_frontend():
-    return FileResponse(str(FRONTEND_DIR / "index.html"))
-
 @app.get("/api/listener/status")
 def listener_status():
     return email_listener.get_status()
+
+# Serve frontend static files directly at the root (placed last so it doesn't override API routers)
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="static")
