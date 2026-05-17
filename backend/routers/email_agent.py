@@ -29,6 +29,7 @@ router = APIRouter(
 THREAD_MEMORY_FILE = "thread_memory.json"
 THREAD_EXPIRY_SECONDS = 86400  # 24 hours
 
+
 def _load_threads():
     """Load conversation threads from disk. Auto-cleans threads older than 24 hours."""
     if not os.path.exists(THREAD_MEMORY_FILE):
@@ -48,20 +49,23 @@ def _load_threads():
     except (json.JSONDecodeError, IOError):
         return {}
 
+
 def _save_threads(threads):
     """Save conversation threads to disk."""
     with open(THREAD_MEMORY_FILE, "w") as f:
         json.dump(threads, f, indent=2)
 
+
 class AgentRequest(BaseModel):
     text: str
     thread_id: Optional[str] = None
+
 
 class InitiateRequest(BaseModel):
     emails: List[str]
 
 
-SYSTEM_PROMPT = """You are an intelligent HR Onboarding Assistant for CargoFL.
+SYSTEM_PROMPT = """You are an intelligent HR Onboarding Assistant for ShanTech.
 Your job is to read emails from new hires and extract their onboarding information.
 
 We need exactly these fields from the candidate:
@@ -113,7 +117,7 @@ def process_hr_email(request: AgentRequest, db: Session = Depends(get_db)):
     history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in threads[thread_id]["messages"]])
     
     if is_onboarded:
-        prompt_text = "You are CargoFL HR. This candidate is already successfully onboarded. Answer their questions politely. DO NOT ask for any onboarding details. Return EXACTLY this JSON: {\"conversational_reply\": \"your answer\"}"
+        prompt_text = "You are ShanTech HR. This candidate is already successfully onboarded. Answer their questions politely. DO NOT ask for any onboarding details. Return EXACTLY this JSON: {\"conversational_reply\": \"your answer\"}"
         full_prompt = f"{prompt_text}\n\nConversation History:\n{history_text}\n\nRespond in JSON."
     else:
         full_prompt = f"{SYSTEM_PROMPT}\n\nThe candidate's email address is {thread_id}.\n\nConversation History:\n{history_text}\n\nExtract the data based on the instructions."
@@ -127,7 +131,7 @@ def process_hr_email(request: AgentRequest, db: Session = Depends(get_db)):
                 temperature=0.1
             )
         )
-        ai_result = json.loads(response.text)
+        ai_result = json.loads(response.text or "")
         
         threads[thread_id]["messages"].append({"role": "assistant", "content": ai_result.get("conversational_reply", "")})
         _save_threads(threads)
@@ -149,6 +153,7 @@ def process_hr_email(request: AgentRequest, db: Session = Depends(get_db)):
             
         extracted = ai_result.get("extracted_data", {})
         
+        # for manual validation because AI can extract wrong format of data which will lead to error in saving it to the database so we validate here
         try:
             new_emp = EmployeeCreate(**extracted)
         except ValidationError as ve:
@@ -185,15 +190,16 @@ def process_hr_email(request: AgentRequest, db: Session = Depends(get_db)):
             raise HTTPException(status_code=429, detail="AI API Quota Exceeded. Please try again later.")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/initiate")
 async def initiate_onboarding(req: InitiateRequest):
     """API Endpoint to send the first welcoming onboarding email to a new hire."""
-    EMAIL_USER = os.getenv('EMAIL_USER')
-    EMAIL_APP_PASSWORD = os.getenv('EMAIL_APP_PASSWORD')
+    EMAIL_USER = os.getenv('EMAIL_USER', '')
+    EMAIL_APP_PASSWORD = os.getenv('EMAIL_APP_PASSWORD', '')
     
     body = """Hello!
 
-Welcome to CargoFL! We are excited to have you join the team.
+Welcome to ShanTech! We are excited to have you join the team.
 To begin your automated onboarding process, please reply to this email with the following details:
 
 1. Your Full Name
@@ -204,7 +210,7 @@ To begin your automated onboarding process, please reply to this email with the 
 If you have any questions about joining formalities or required documents, feel free to ask!
 
 Best regards,
-CargoFL HR Team"""
+ShanTech HR Team"""
 
     try:
         reminders = {}
@@ -221,7 +227,7 @@ CargoFL HR Team"""
             
             for target_email in req.emails:
                 msg = EmailMessage()
-                msg['Subject'] = "Welcome to CargoFL! Complete your onboarding"
+                msg['Subject'] = "Welcome to ShanTech! Complete your onboarding"
                 msg['From'] = EMAIL_USER
                 msg['To'] = target_email
                 msg.set_content(body)

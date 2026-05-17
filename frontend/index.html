@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
     <title>Employee Management</title>
 </head>
 
@@ -31,17 +31,17 @@
         </div>
 
         <div class="d-flex justify-content-center mb-4 gap-3">
-            <button type="button" class="btn btn-outline-primary btn-lg" id="btnAddNew" data-bs-toggle="modal"
-                data-bs-target="#employeeModal">
-                <i class="bi bi-plus-circle me-2"></i>Add Manually
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-lg" id="btnAiOnboard" data-bs-toggle="modal"
+            <button type="button" class="btn btn-outline-secondary btn-lg btn-sm me-0" id="btnAiOnboard" data-bs-toggle="modal"
                 data-bs-target="#aiModal">
                 <i class="bi bi-file-text me-2"></i>Parse from Text
             </button>
-            <button type="button" class="btn btn-dark btn-lg" data-bs-toggle="modal"
+            <button type="button" class="btn btn-dark btn-lg btn-sm mt-1" data-bs-toggle="modal"
                 data-bs-target="#emailInitiatorModal">
                 <i class="bi bi-envelope-paper me-2"></i>Send Onboarding Email
+            </button>
+            <button type="button" class="btn btn-outline-primary btn-sm me-0" id="btnAddNew" data-bs-toggle="modal"
+                data-bs-target="#employeeModal">
+                <i class="bi bi-plus-circle me-2"></i>Add Manually
             </button>
         </div>
 
@@ -301,7 +301,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="/static/script.js"></script>
 </body>
 
 </html>

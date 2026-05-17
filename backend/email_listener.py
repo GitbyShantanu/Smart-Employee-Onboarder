@@ -33,6 +33,7 @@ _stop_event = threading.Event()
 _is_running = False
 _logs = []
 
+
 def _log(msg):
     """Thread-safe logging."""
     timestamp = time.strftime("%H:%M:%S")
@@ -210,9 +211,9 @@ def process_reminders():
             send_reply(
                 email_addr,
                 "Final Reminder: Onboarding Pending",
-                "Hello,\n\nThis is our final reminder regarding your onboarding at CargoFL. "
+                "Hello,\n\nThis is our final reminder regarding your onboarding at ShanTech. "
                 "We still haven't received your details. Please contact HR directly if you "
-                "need any assistance.\n\nThank you,\nCargoFL HR Team"
+                "need any assistance.\n\nThank you,\nShanTech HR Team"
             )
             updated = True
             continue
@@ -227,13 +228,13 @@ def process_reminders():
                 msg = (f"Hello,\n\nWe noticed there was a technical issue earlier when processing your reply. "
                        f"Could you please resend your onboarding details?\n\n"
                        f"We need: Name, Email, Qualification, Date of Birth, and Location.\n\n"
-                       f"Thank you,\nCargoFL HR Team")
+                       f"Thank you,\nShanTech HR Team")
                 subject = "Follow-up: Please resend your onboarding details"
             else:
                 msg = (f"Hello,\n\nThis is reminder {reminder_num} of {total}. "
                        f"We are still waiting for your onboarding details.\n\n"
                        f"Please reply with: Name, Qualification, Date of Birth, and Location.\n\n"
-                       f"Thank you,\nCargoFL HR Team")
+                       f"Thank you,\nShanTech HR Team")
                 subject = f"Reminder {reminder_num}: Action Required for your Onboarding"
 
             _log(f"[REMINDER {reminder_num}/{total}] Sending to {email_addr}")

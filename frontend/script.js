@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000/employees";
+const API = "/employees";
 
 const formFields = {
     name: document.getElementById("name"),
@@ -377,7 +377,7 @@ btnSendToAi.addEventListener("click", async () => {
     btnSendToAi.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
     try {
-        const res = await fetch("http://127.0.0.1:8000/api/ai-onboarding", {
+        const res = await fetch("/api/ai-onboarding", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: text, thread_id: aiThreadId })
@@ -437,7 +437,7 @@ btnSendInitiatorEmail.addEventListener("click", async () => {
     btnSendInitiatorEmail.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
 
     try {
-        const res = await fetch("http://127.0.0.1:8000/api/initiate", {
+        const res = await fetch("/api/initiate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ emails: emailArray })
@@ -497,7 +497,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     async function pollListenerStatus() {
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/listener/status");
+            const res = await fetch("/api/listener/status");
             if (res.ok) {
                 const data = await res.json();
                 if (data.is_running) {

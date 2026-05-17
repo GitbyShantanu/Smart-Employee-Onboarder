@@ -6,3 +6,4 @@ __pycache__
 .vscode/
 reminders.json
 thread_memory.json
+*.pyc

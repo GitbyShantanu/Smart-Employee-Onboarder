@@ -1,10 +1,15 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from backend.database import engine, Base
 from backend.routers import employee
 from backend.routers import email_agent
 from backend import email_listener
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 
 @asynccontextmanager
@@ -32,9 +37,12 @@ Base.metadata.create_all(bind=engine)
 app.include_router(employee.router)
 app.include_router(email_agent.router)
 
+# Serve frontend static files (CSS, JS)
+app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+
 @app.get("/")
-def greet():    
-    return {"msg" : "Hello World"}
+def serve_frontend():
+    return FileResponse(str(FRONTEND_DIR / "index.html"))
 
 @app.get("/api/listener/status")
 def listener_status():
