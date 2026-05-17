@@ -580,3 +580,56 @@ body {
         text-align: center;
     }
 }
+
+/* ---- Pulsing Status Dot ---- */
+.status-dot-container {
+    width: 8px;
+    height: 8px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    position: absolute;
+    animation: dot-pulse 2s infinite ease-in-out;
+}
+
+.static-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+}
+
+/* Status colors */
+.status-online .pulse-dot, .status-online .static-dot {
+    background-color: #10b981;
+}
+
+.status-connecting .pulse-dot, .status-connecting .static-dot {
+    background-color: #f59e0b;
+}
+
+.status-offline .pulse-dot, .status-offline .static-dot {
+    background-color: #ef4444;
+}
+
+@keyframes dot-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(2.8);
+        opacity: 0;
+    }
+}
+

@@ -24,15 +24,14 @@
                 </div>
             </div>
             
-            <!-- Relocated Email Listener Badge (compact and elegant) -->
-            <div class="d-flex align-items-center px-3 py-2 rounded border" style="border-color: var(--border-color) !important; background-color: var(--bg-card) !important;">
-                <i class="bi bi-mailbox2 me-2 text-info fs-5"></i>
-                <div class="text-end">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="small fw-semibold text-secondary">Agent Listener:</span>
-                        <span class="badge rounded-pill bg-secondary" id="listenerBadge" style="font-size: 0.7rem;">Connecting...</span>
+            <!-- Dynamic Agent Status Pill (Minimalist and high-end) -->
+            <div class="d-flex align-items-center px-3 py-2 rounded-pill border" style="border-color: var(--border-color) !important; background-color: var(--bg-card) !important; height: 38px;">
+                <div class="d-flex align-items-center gap-2 status-connecting" id="listenerStatusWrapper">
+                    <div class="status-dot-container">
+                        <div class="pulse-dot"></div>
+                        <div class="static-dot"></div>
                     </div>
-                    <small class="text-muted" id="listenerInfo" style="font-size: 0.65rem;">Starting with server...</small>
+                    <span class="small fw-semibold text-secondary" id="listenerBadge" style="font-size: 0.8rem;">Agent: Connecting</span>
                 </div>
             </div>
         </div>

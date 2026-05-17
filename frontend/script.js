@@ -509,31 +509,28 @@ window.addEventListener("DOMContentLoaded", () => {
 
     // ---- Email Listener Status (read-only, auto-starts with server) ----
     const listenerBadge = document.getElementById("listenerBadge");
-    const listenerInfo = document.getElementById("listenerInfo");
+    const listenerStatusWrapper = document.getElementById("listenerStatusWrapper");
 
     async function pollListenerStatus() {
+        if (!listenerBadge || !listenerStatusWrapper) return;
         try {
             const res = await fetch(`${BACKEND_URL}/api/listener/status`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.is_running) {
-                    listenerBadge.textContent = "Online";
-                    listenerBadge.className = "badge rounded-pill bg-success";
-                    listenerInfo.textContent = "Monitoring inbox";
+                    listenerBadge.textContent = "Agent: Online";
+                    listenerStatusWrapper.className = "d-flex align-items-center gap-2 status-online";
                 } else {
-                    listenerBadge.textContent = "Starting...";
-                    listenerBadge.className = "badge rounded-pill bg-warning text-dark";
-                    listenerInfo.textContent = "Initializing...";
+                    listenerBadge.textContent = "Agent: Connecting";
+                    listenerStatusWrapper.className = "d-flex align-items-center gap-2 status-connecting";
                 }
             } else {
-                listenerBadge.textContent = "Offline";
-                listenerBadge.className = "badge rounded-pill bg-secondary";
-                listenerInfo.textContent = "Server unreachable";
+                listenerBadge.textContent = "Agent: Offline";
+                listenerStatusWrapper.className = "d-flex align-items-center gap-2 status-offline";
             }
         } catch (e) {
-            listenerBadge.textContent = "Offline";
-            listenerBadge.className = "badge rounded-pill bg-secondary";
-            listenerInfo.textContent = "Server unreachable";
+            listenerBadge.textContent = "Agent: Offline";
+            listenerStatusWrapper.className = "d-flex align-items-center gap-2 status-offline";
         }
     }
 
