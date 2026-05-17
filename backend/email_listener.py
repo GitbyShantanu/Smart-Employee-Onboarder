@@ -281,7 +281,7 @@ def _listener_loop():
     _is_running = True
     _log("Email Listener STARTED")
     _log(f"Monitoring inbox: {EMAIL_USER}")
-    _log(f"Checking every 3 seconds")
+    _log(f"Checking every 15 seconds")
 
     while not _stop_event.is_set():
         try:
@@ -309,7 +309,7 @@ def _listener_loop():
             _log(f"Loop error: {e}")
 
         # Sleep in small increments so stop_event is responsive
-        for _ in range(6):  # 6 * 0.5s = 3 seconds
+        for _ in range(30):  # 30 * 0.5s = 15 seconds
             if _stop_event.is_set():
                 break
             time.sleep(0.5)
