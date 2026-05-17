@@ -210,7 +210,10 @@ body {
 }
 
 .table thead th {
-    background: transparent !important;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-card) !important;
     color: var(--text-secondary);
     font-weight: 600;
     font-size: 0.75rem;
@@ -631,5 +634,32 @@ body {
         transform: scale(2.8);
         opacity: 0;
     }
+}
+
+/* ---- Table Container Scroll & Custom Scrollbar ---- */
+.table-responsive {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 

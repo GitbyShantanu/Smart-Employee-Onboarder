@@ -120,8 +120,13 @@ async function displayEmployees() {
     table.innerHTML = `
         <tr>
             <td colspan="12" class="text-center py-5 text-muted">
-                <div class="spinner-border text-secondary" role="status"></div>
-                <div class="mt-2 small fw-medium">Loading employees...</div>
+                <div class="spinner-border text-secondary mb-3" role="status"></div>
+                <div class="mt-2 small fw-semibold text-secondary">Loading Employee Database...</div>
+                <div class="mt-3 text-warning-emphasis px-3 py-2 rounded border border-warning-subtle d-inline-block text-center" style="max-width: 480px; margin: 15px auto 0 auto; line-height: 1.5; font-size: 0.75rem; background: rgba(245, 158, 11, 0.04);">
+                    <i class="bi bi-cloud-lightning-charge me-1"></i>
+                    <strong>Render Cold Start Check:</strong> Free backends automatically go to sleep after inactivity. 
+                    If this is the first load, please allow <strong>30-50 seconds</strong> for the server to wake up and retrieve your Neon DB records!
+                </div>
             </td>
         </tr>
     `;
