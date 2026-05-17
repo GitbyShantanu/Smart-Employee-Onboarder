@@ -7,27 +7,33 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
-    <title>Employee Management</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>ShanTech Onboarding Portal</title>
 </head>
 
 <body>
 
     <div class="container mt-5">
-        <div class="text-center mb-4">
-            <img src="logo.png" alt="ShanTech Innovations" style="height: 105px; filter: drop-shadow(0 0 15px rgba(79, 140, 255, 0.2)); transition: transform 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <h2 class="mt-2" style="font-size: 1.65rem; font-weight: 700; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em;">Smart Onboarding Portal</h2>
-        </div>
-
-        <!-- Email Listener Status Bar -->
-        <div class="card mb-4 border-0 shadow-sm">
-            <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-mailbox2 me-2 fs-5"></i>
-                    <span class="fw-medium me-2">Email Listener</span>
-                    <span class="badge rounded-pill bg-secondary" id="listenerBadge"
-                        style="font-size: 0.75rem;">Connecting...</span>
+        <!-- Sleek Top Navigation Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color) !important;">
+            <div class="d-flex align-items-center gap-3">
+                <img src="favicon.png" alt="ShanTech" style="height: 52px; filter: drop-shadow(0 0 10px rgba(79, 140, 255, 0.25)); transition: transform 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                <div>
+                    <h1 class="mb-0 fs-4 fw-bold" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.02em;">ShanTech Innovations</h1>
+                    <span class="text-muted small fw-medium">Smart AI Onboarding Portal</span>
                 </div>
-                <small class="text-muted" id="listenerInfo">Starting with server...</small>
+            </div>
+            
+            <!-- Relocated Email Listener Badge (compact and elegant) -->
+            <div class="d-flex align-items-center px-3 py-2 rounded border" style="border-color: var(--border-color) !important; background-color: var(--bg-card) !important;">
+                <i class="bi bi-mailbox2 me-2 text-info fs-5"></i>
+                <div class="text-end">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="small fw-semibold text-secondary">Agent Listener:</span>
+                        <span class="badge rounded-pill bg-secondary" id="listenerBadge" style="font-size: 0.7rem;">Connecting...</span>
+                    </div>
+                    <small class="text-muted" id="listenerInfo" style="font-size: 0.65rem;">Starting with server...</small>
+                </div>
             </div>
         </div>
 
