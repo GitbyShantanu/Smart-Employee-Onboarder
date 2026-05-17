@@ -122,17 +122,21 @@ async function displayEmployees() {
             <td colspan="12" class="text-center py-5 text-muted">
                 <div class="spinner-border text-secondary mb-3" role="status"></div>
                 <div class="mt-2 small fw-semibold text-secondary">Loading Employee Database...</div>
-                <div class="mt-3 text-warning-emphasis px-3 py-2 rounded border border-warning-subtle d-inline-block text-center" style="max-width: 480px; margin: 15px auto 0 auto; line-height: 1.5; font-size: 0.75rem; background: rgba(245, 158, 11, 0.04);">
-                    <i class="bi bi-cloud-lightning-charge me-1"></i>
-                    <strong>Render Cold Start Check:</strong> Free backends automatically go to sleep after inactivity. 
-                    If this is the first load, please allow <strong>30-50 seconds</strong> for the server to wake up and retrieve your Neon DB records!
-                </div>
             </td>
         </tr>
     `;
 
+    const warmUpAlert = document.getElementById("renderWarmUpAlert");
+    // Show warm-up banner after 2 seconds if request is still pending (cold start)
+    const alertTimeout = setTimeout(() => {
+        if (warmUpAlert) warmUpAlert.classList.remove("d-none");
+    }, 2000);
+
     try {
         const res = await fetch(API);
+
+        clearTimeout(alertTimeout);
+        if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
         if (!res.ok) {
             let errorMessage = handleError(null, res.status);
@@ -156,6 +160,9 @@ async function displayEmployees() {
         renderTable();
         console.log("Employees loaded:", data);
     } catch (error) {
+        clearTimeout(alertTimeout);
+        if (warmUpAlert) warmUpAlert.classList.add("d-none");
+
         console.error("Error loading employees:", error);
         showToast("Failed to load employees: " + handleError(error, null), "danger");
 
@@ -550,9 +557,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Poll immediately, then every 10 seconds (lightweight)
+    // Poll immediately, then every 15 seconds (reduced request rate to optimize resources)
     pollListenerStatus();
-    setInterval(pollListenerStatus, 10000);
+    setInterval(pollListenerStatus, 15000);
 });
 
 console.log("App started...");

@@ -51,6 +51,17 @@
             </button>
         </div>
 
+        <!-- Render Cold Start Graceful Warm-up Alert -->
+        <div id="renderWarmUpAlert" class="alert alert-warning border-warning-subtle d-none mb-4 shadow-sm" style="background: rgba(245, 158, 11, 0.03); color: var(--accent-amber); border-radius: var(--radius-md); max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
+            <div class="d-flex align-items-center gap-3 flex-wrap flex-md-nowrap">
+                <div class="spinner-grow spinner-grow-sm text-warning" role="status" style="flex-shrink: 0;"></div>
+                <div style="flex: 1; min-width: 0;">
+                    <strong class="d-block mb-1" style="font-size: 0.85rem; letter-spacing: -0.01em;"><i class="bi bi-cloud-lightning-charge me-1"></i>Render Server Warm-Up in Progress</strong>
+                    <span class="small text-muted d-block" style="line-height: 1.45;">Deployed on Render Free tier. The server automatically sleeps during inactivity. It can take <strong>30-50 seconds</strong> to spin up and load records from your Neon PostgreSQL Database. Please standby...</span>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Employee Records</h5>
