@@ -114,6 +114,42 @@ function clearForm() {
     Object.values(formFields).forEach(f => f.value = "");
 }
 
+// Resilient fetch with automatic retry policy for Render cold starts
+async function fetchWithRetry(url, options = {}, maxRetries = 10, delayMs = 5000) {
+    const warmUpAlert = document.getElementById("renderWarmUpAlert");
+    const isRender = url.includes("onrender.com");
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const res = await fetch(url, options);
+            if (res.ok || res.status < 500) {
+                if (warmUpAlert) warmUpAlert.classList.add("d-none");
+                return res;
+            }
+            throw new Error(`Server returned status ${res.status}`);
+        } catch (error) {
+            console.warn(`Connection attempt ${attempt} failed:`, error);
+            
+            // If it's a local address or we've reached max retries, fail instantly (don't waste time)
+            if (!isRender || attempt === maxRetries) {
+                if (warmUpAlert) warmUpAlert.classList.add("d-none");
+                throw error;
+            }
+
+            // Show the warm-up alert card and update status text dynamically
+            if (warmUpAlert) {
+                warmUpAlert.classList.remove("d-none");
+                const alertText = warmUpAlert.querySelector(".text-muted");
+                if (alertText) {
+                    alertText.innerHTML = `Deployed on Render's Free tier. The server automatically sleeps during inactivity. <br><strong>Initiating server wake-up: Attempt ${attempt}/${maxRetries}</strong>. Retrying connection in ${delayMs/1000} seconds. Please standby...`;
+                }
+            }
+
+            // Wait for delayMs before retrying
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+    }
+}
 
 // ---------------- LOAD EMPLOYEES ----------------
 async function displayEmployees() {
@@ -127,15 +163,11 @@ async function displayEmployees() {
     `;
 
     const warmUpAlert = document.getElementById("renderWarmUpAlert");
-    // Show warm-up banner after 2 seconds if request is still pending (cold start)
-    const alertTimeout = setTimeout(() => {
-        if (warmUpAlert) warmUpAlert.classList.remove("d-none");
-    }, 2000);
+    if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
     try {
-        const res = await fetch(API);
+        const res = await fetchWithRetry(API, {}, 10, 5000);
 
-        clearTimeout(alertTimeout);
         if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
         if (!res.ok) {
@@ -160,7 +192,6 @@ async function displayEmployees() {
         renderTable();
         console.log("Employees loaded:", data);
     } catch (error) {
-        clearTimeout(alertTimeout);
         if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
         console.error("Error loading employees:", error);
