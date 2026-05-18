@@ -165,9 +165,21 @@ async function displayEmployees() {
     const warmUpAlert = document.getElementById("renderWarmUpAlert");
     if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
+    // Double-Protection: Show the warm-up banner after 2 seconds if the fetch hangs (pending state)
+    const alertTimeout = setTimeout(() => {
+        if (warmUpAlert) {
+            warmUpAlert.classList.remove("d-none");
+            const alertText = warmUpAlert.querySelector(".text-muted");
+            if (alertText) {
+                alertText.innerHTML = `Deployed on Render's Free tier. The server automatically sleeps during inactivity. <br><strong>Initiating server wake-up...</strong> Please allow 30-50 seconds for the container to start.`;
+            }
+        }
+    }, 2000);
+
     try {
         const res = await fetchWithRetry(API, {}, 10, 5000);
 
+        clearTimeout(alertTimeout);
         if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
         if (!res.ok) {
@@ -192,6 +204,7 @@ async function displayEmployees() {
         renderTable();
         console.log("Employees loaded:", data);
     } catch (error) {
+        clearTimeout(alertTimeout);
         if (warmUpAlert) warmUpAlert.classList.add("d-none");
 
         console.error("Error loading employees:", error);
