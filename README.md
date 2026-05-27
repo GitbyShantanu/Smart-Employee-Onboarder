@@ -125,7 +125,7 @@ try {
 ## Project Structure
 
 ```
-Employee-OnBoarding-System/
+Smart-Employee-Onboarder/
 │
 ├── backend/
 │   ├── main.py               # FastAPI app config with lifespan background listener managers
@@ -157,8 +157,8 @@ Employee-OnBoarding-System/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/GitbyShantanu/Employee-OnBoading-System.git
-cd Employee-OnBoading-System
+git clone https://github.com/GitbyShantanu/Smart-Employee-Onboarder.git
+cd Smart-Employee-Onboarder
 ```
 
 ### 2. Install Dependencies
