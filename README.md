@@ -1,170 +1,158 @@
 <div align="center">
 
-# 🤖 Agentic HR Onboarding System
+# Agentic HR Onboarding System
 
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-AI_Core-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
-[![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
-[![Pydantic](https://img.shields.io/badge/Pydantic_v2-Validation-E92063?style=for-the-badge&logo=pydantic&logoColor=white)](https://docs.pydantic.dev)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap_5-Frontend-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)]()
-[![Built by](https://img.shields.io/badge/Built_by-ShanTech-0A0A0A?style=flat-square&logo=github)](https://github.com/GitbyShantanu)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-AI_Core-4285F4?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev)
+[![Neon PostgreSQL](https://img.shields.io/badge/Neon_PostgreSQL-Cloud_Database-003545?style=flat-square&logo=postgresql&logoColor=white)](https://neon.tech)
+[![CSS3](https://img.shields.io/badge/Vanilla_CSS-Premium_Design-1572B6?style=flat-square&logo=css3&logoColor=white)]()
+[![Hosted on Render](https://img.shields.io/badge/Render-Backend_Live-46E3B7?style=flat-square&logo=render&logoColor=black)](https://render.com)
+[![Hosted on Netlify](https://img.shields.io/badge/Netlify-Frontend_Live-00C7B7?style=flat-square&logo=netlify&logoColor=white)](https://netlify.com)
 
 <br/>
 
-> **An autonomous, email-native AI agent that conducts end-to-end employee onboarding — no human follow-up required.**
->
-> *The agent reads emails, extracts and validates structured data, asks follow-up questions for missing fields, persists multi-turn memory, and escalates reminders — all on its own.*
+An autonomous, email-native AI agent that conducts end-to-end candidate onboarding. The system processes email communications, extracts structured data, prompts candidates for missing information, maintains conversation state, and coordinates follow-ups without human intervention.
 
-<br/>
-
-[🚀 Getting Started](#-getting-started) · [🏗 Architecture](#-architecture) · [📡 API Reference](#-api-reference) · [🛠 Skills Demonstrated](#-skills-demonstrated)
+[Getting Started](#getting-started) · [System Architecture](#system-architecture) · [Connection Resilience](#connection-resilience) · [Engineering Highlights](#engineering-highlights)
 
 </div>
 
 ---
 
-## 🌟 What Makes This Different
+## Production Engineering Highlights
 
-This is **not** a chatbot. This is a **fully autonomous background agent** that operates through real email infrastructure. Once triggered, it:
+Unlike prototype AI tools that run solely in local environments, this system is designed to handle production-tier constraints, ephemeral cloud hosting, and database rate limits:
 
-- 📬 Monitors a live Gmail inbox via IMAP every **3 seconds**
-- 🧠 Uses **Gemini 2.5 Flash** to read, understand, and reply to candidate emails
-- 🔍 Extracts 5 structured fields (name, email, qualification, DOB, location) with **zero hallucination tolerance** — Pydantic validates every AI output
-- 💬 Maintains **multi-turn conversation memory** (24h TTL) — asks only for what's missing
-- 📂 **Auto-saves** verified employees to SQLite on completion
-- ⏰ Fires a **3-tier escalating reminder** (5 → 10 → 20 min → final notice) if a candidate goes silent
-- 🔄 Transitions to **Q&A mode** post-onboarding so candidates can ask questions naturally
+*   **Self-Healing Auto-Wake Queue:** Because the backend is hosted on Render's free tier, the container hibernates after 15 minutes of inactivity. To prevent connection drops or visual hangs, the frontend implements a parallel 2-second connection monitor. If the server is sleeping, it alerts the user with an elegant warm-up banner and initiates a 10-attempt exponential backoff retry strategy.
+*   **Resource-Optimized Background Threading:** Background Gmail IMAP polling is configured to run at 15-second intervals rather than a aggressive loop. This preserves container CPU usage and respects Neon PostgreSQL database connection pooling boundaries.
+*   **Ephemere State Preservation:** While the container is hibernating, incoming candidate replies are queued safely as unseen messages in Gmail. Once an HTTP request wakes the server, the FastAPI lifespan context automatically resumes the background thread, processing all queued responses in a single batch.
+*   **Bespoke Vanilla CSS Architecture:** The dashboard bypasses generic CSS frameworks in favor of custom HSL-tailored tokens, responsive glassmorphic interfaces, sticky-header table viewports with custom scrollbars, and a `#brandHome` reset trigger that synchronizes state across the application.
+*   **Cloud PostgreSQL Integration:** Database architecture has been migrated from local SQLite to serverless Neon PostgreSQL to ensure persistent, concurrent storage that survives container rebuilds.
 
 ---
 
-## 🎬 System Flow
+## System Flow
 
 ```mermaid
 sequenceDiagram
-    participant HR as 🧑‍💼 HR Manager
-    participant API as ⚡ FastAPI Server
-    participant SMTP as 📤 SMTP (Gmail)
-    participant IMAP as 📥 IMAP Listener
-    participant AI as 🤖 Gemini 2.5 Flash
-    participant MEM as 🗂 Thread Memory
-    participant DB as 🗄 SQLite DB
+    participant HR as HR Dashboard (Netlify)
+    participant API as FastAPI Server (Render)
+    participant SMTP as SMTP (Gmail)
+    participant IMAP as IMAP Listener (15s Loop)
+    participant AI as Gemini 2.5 Flash
+    participant MEM as Thread Memory (JSON)
+    participant DB as Neon PostgreSQL
 
     HR->>API: POST /api/initiate (candidate email)
     API->>SMTP: Send welcome onboarding email
-    SMTP-->>Candidate: "Welcome! Please share your details."
+    SMTP-->>Candidate: Welcome email sent
+    
+    Note over API,IMAP: Server hibernates after 15 mins of HTTP inactivity
+    Candidate-->>SMTP: Candidate replies (marked UNSEEN in inbox)
+    
+    HR->>API: Wake up server (Auto-Wake Queue handles cold start)
+    API->>IMAP: Lifespan initiates background listener
+    IMAP->>IMAP: Detects UNSEEN email (polled every 15s)
+    
+    IMAP->>MEM: Load conversation state
+    IMAP->>AI: Full thread context + candidate response
+    AI->>AI: Extract fields (Name, Email, Qualification, DOB, Location)
 
-    loop Every 3 seconds
-        IMAP->>IMAP: Poll inbox for new replies
-    end
-
-    Candidate-->>IMAP: Replies with details (partial or full)
-    IMAP->>MEM: Load conversation thread (or create new)
-    IMAP->>AI: Full thread + candidate reply
-    AI->>AI: Extract fields → {name, email, qualification, DOB, location}
-
-    alt Fields incomplete
-        AI->>SMTP: Reply asking only for MISSING fields
-        MEM->>MEM: Save updated partial data + history
-        Note over IMAP,MEM: Loop continues until all 5 fields collected
-    else All fields valid (Pydantic passes)
-        AI->>DB: Auto-save employee record
+    alt Data Incomplete
+        AI->>SMTP: Reply asking for missing fields
+        MEM->>MEM: Update local JSON thread memory
+    else Data Complete (Pydantic validated)
+        AI->>DB: Persist candidate to PostgreSQL
         AI->>SMTP: Send onboarding completion email
         MEM->>MEM: Mark thread as COMPLETED
     end
 
-    alt Candidate goes silent
-        MEM->>IMAP: Reminder engine triggers (5 → 10 → 20 min → final)
-        IMAP->>SMTP: Send escalating reminder email
+    alt No Candidate Response
+        MEM->>IMAP: Trigger escalating reminders (5, 10, 20 mins)
+        IMAP->>SMTP: Dispatch reminder email
     end
 
-    alt Post-onboarding question
-        Candidate-->>IMAP: "What documents do I need?"
-        IMAP->>AI: Q&A mode (no re-extraction)
-        AI->>SMTP: Contextual answer reply
+    alt Post-Onboarding Inquiry
+        Candidate-->>IMAP: Conversational question (e.g., "What documents do I need?")
+        IMAP->>AI: AI Q&A Mode
+        AI->>SMTP: Direct contextual answer email
     end
 ```
 
 ---
 
-## 🏗 Architecture
+## Connection Resilience
 
-### Key Design Decisions
+To mitigate serverless cold-start latency, the frontend utilizes an asynchronous retry queue with a parallel wake-up threshold. This ensures the user is informed of the backend state within 2 seconds instead of seeing a frozen application:
 
-| Decision | Choice | Why |
-|---|---|---|
-| **Conversation State** | JSON file-based (24h TTL) | Conversations are ephemeral — files are zero-config, fast, and survive server restarts without DB overhead |
-| **Concurrency** | Python `threading` (daemon thread) | Single-server deployment — no Celery/Redis infrastructure needed; FastAPI lifespan manages lifecycle cleanly |
-| **AI → Validation** | Pydantic v2 *after* Gemini extraction | AI output is never trusted directly. Pydantic acts as a strict trust boundary against hallucinated formats |
-| **Agent Mode** | Dual-mode (data extraction + Q&A) | Single-reply handles both extraction *and* candidate questions for natural conversation flow |
-| **Listener Lifecycle** | `asynccontextmanager` lifespan | Listener auto-starts on server boot, auto-stops on shutdown — zero manual management |
+```javascript
+// Connection queue handles pending TCP sockets during container boot
+const alertTimeout = setTimeout(() => {
+    if (warmUpAlert) {
+        warmUpAlert.classList.remove("d-none");
+        alertText.innerHTML = `Deployed on Render's Free tier. The server automatically sleeps during inactivity. <br><strong>Initiating server wake-up...</strong> Please allow 30-50 seconds for the container to start.`;
+    }
+}, 2000);
 
-### Validation Rules (Pydantic v2)
-
-- ✅ **Qualification**: Strict allowlist of 19 recognized degree types
-- ✅ **Location**: Validated against 60+ Indian cities
-- ✅ **DOB**: Must be a past date (rejects future dates and invalid formats)
-- ✅ **Email**: RFC-compliant format validation
-- ✅ **Name**: Non-empty, stripped, title-cased normalization
+try {
+    const res = await fetchWithRetry(API, {}, 10, 5000); // Polling queue up to 10 attempts
+    clearTimeout(alertTimeout);
+    warmUpAlert.classList.add("d-none");
+    // Render dashboard components
+} catch (error) {
+    clearTimeout(alertTimeout);
+    showToast("Failed to connect to the server: " + error.message, "danger");
+}
+```
 
 ---
 
-## 📁 Project Structure
+## Architecture and Design Decisions
+
+### Key Decisions
+
+| Decision | Choice | Rationale |
+|---|---|---|
+| **Database Engine** | Neon PostgreSQL | Cloud-managed relational database. Ensures data persistency across ephemeral Render container environments. |
+| **UX Resilience** | Auto-Wake Fallback | Parallel monitor handles long cold starts, preventing standard browser timeouts and freezing. |
+| **IMAP Polling** | 15-Second Windows | Drastically reduces background thread overhead, keeping resources within free tier boundaries while maintaining responsiveness. |
+| **State Management** | JSON Ephemeral Memory | Files are maintained with a 24-hour TTL to prevent DB bloat from abandoned onboarding drafts. |
+| **AI Validation** | Pydantic v2 Parsing | Gemini outputs are never trusted directly. Pydantic serves as a strict typing boundary for qualifications, Indian cities, and past birth dates. |
+
+---
+
+## Project Structure
 
 ```
 Employee-OnBoarding-System/
 │
 ├── backend/
-│   ├── main.py               # FastAPI app — lifespan-managed email listener startup/shutdown
-│   ├── database.py           # SQLAlchemy engine + session config
-│   ├── models.py             # Employee ORM model
-│   ├── schema.py             # Pydantic v2 schemas with strict field validators
-│   ├── email_listener.py     # 🔑 Autonomous IMAP monitor + multi-stage reminder engine
+│   ├── main.py               # FastAPI app config with lifespan background listener managers
+│   ├── database.py           # Cloud Neon PostgreSQL connection pooling & SQLAlchemy sessions
+│   ├── models.py             # Relational schema mappings
+│   ├── schema.py             # Pydantic validation rules and format normalizers
+│   ├── email_listener.py     # Background IMAP scanning thread and reminder state scheduler
 │   └── routers/
-│       ├── employee.py       # Full CRUD REST API (GET, POST, PUT, PATCH, DELETE)
-│       └── email_agent.py    # AI onboarding agent + email initiator endpoint
+│       ├── employee.py       # Candidate REST API handlers (CRUD endpoints)
+│       └── email_agent.py    # Conversation state initiator and AI parser controls
 │
 └── frontend/
-    ├── index.html            # HR dashboard (manual CRUD + AI text parser)
-    ├── script.js             # API calls, pagination, toast notifications
-    └── style.css             # Custom styles
+    ├── index.html            # Admin dashboard UI
+    ├── script.js             # Asynchronous DOM rendering, retry queues, and search hooks
+    └── style.css             # Style tokens, flex grids, and sticky scroll behaviors
 ```
 
 ---
 
-## 📡 API Reference
-
-### Employee CRUD
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/employees` | Paginated employee list |
-| `POST` | `/employees` | Create employee manually |
-| `GET` | `/employees/{id}` | Fetch single employee |
-| `PUT` | `/employees/{id}` | Full update |
-| `PATCH` | `/employees/{id}` | Partial update |
-| `DELETE` | `/employees/{id}` | Remove employee |
-
-### AI Agent & Email
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/initiate` | Trigger welcome email to a new hire |
-| `POST` | `/api/ai-onboarding` | Multi-turn AI agent (manual text paste mode) |
-| `GET` | `/api/listener/status` | Health check for the background IMAP listener |
-
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
 - Python 3.10+
-- A Gmail account with **App Password** enabled (2FA required)
-- A Google AI Studio API key for Gemini
+- A Gmail account with an App Password configured
+- A Google Gemini API Key
+- A cloud PostgreSQL connection string
 
 ### 1. Clone the Repository
 
@@ -179,82 +167,28 @@ cd Employee-OnBoading-System
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
+### 3. Environment Configuration
 
-Create a `.env` file in the `backend/` directory:
+Create a `.env` file within the `backend/` directory:
 
 ```env
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
 GOOGLE_API_KEY=your_gemini_api_key_here
 EMAIL_USER=your_gmail_address@gmail.com
 EMAIL_APP_PASSWORD=your_16_char_app_password
 ```
 
-> 🔐 **Never commit your `.env` file.** It is already in `.gitignore`.
-
-### 4. Run the Server
+### 4. Boot the Server
 
 ```bash
 cd backend
 uvicorn main:app --reload
 ```
 
-The HR dashboard will be available at `http://127.0.0.1:8000`.  
-The IMAP listener starts automatically in the background.
-
 ---
 
-## 🛠 Skills Demonstrated
+## Developer Profile
 
-This project was built as a portfolio piece to showcase production-ready engineering across the full stack.
+Developed by **[Shantanu](https://github.com/GitbyShantanu)**, a backend and AI systems developer building production-grade software workflows.
 
-### 🤖 Agentic AI Engineering
-- Autonomous multi-turn agent with persistent conversation memory
-- Structured JSON extraction with Gemini 2.5 Flash (`temperature=0.1` for deterministic output)
-- Dual-mode agent behavior (extraction mode → Q&A mode)
-- Graceful handling of partial, incomplete, and ambiguous user input
-
-### ⚙️ Backend Engineering
-- FastAPI application with proper lifespan management (`asynccontextmanager`)
-- SQLAlchemy ORM with clean model separation
-- Pydantic v2 for strict schema validation (custom validators, allowlists, date enforcement)
-- RESTful API design with full CRUD and appropriate HTTP semantics
-
-### 🔁 Concurrency & System Design
-- Background thread management (daemon threads, lifecycle-aware)
-- IMAP + SMTP integration via Python standard library (`imaplib`, `smtplib`)
-- Polling-based event loop with configurable intervals
-- State machine design: `AWAITING → IN_PROGRESS → COMPLETED` per thread
-
-### 🧹 Code Quality & Architecture
-- Clear separation of concerns across routers, models, schemas, and services
-- Environment-based configuration (no hardcoded secrets)
-- File-based ephemeral state with TTL auto-cleanup
-- Modular, readable codebase — easy to extend or swap components
-
----
-
-## 🔮 Potential Extensions
-
-- [ ] Replace SQLite with PostgreSQL for production scale
-- [ ] Add Redis-backed memory for multi-instance deployments
-- [ ] Build a recruiter-facing analytics dashboard (onboarding completion rates, response times)
-- [ ] Support WhatsApp / Slack as alternate onboarding channels
-- [ ] Containerize with Docker + `docker-compose`
-
----
-
-## 👨‍💻 About
-
-Built with 🛠 by **[Shantanu](https://github.com/GitbyShantanu)** — a Python & FastAPI developer focused on Agentic AI systems.
-
-This project is part of my portfolio under **ShanTech** — a personal brand for projects at the intersection of AI and practical software engineering.
-
----
-
-<div align="center">
-
-*If this project impressed you, consider giving it a ⭐ — it means a lot!*
-
-[![GitHub](https://img.shields.io/badge/GitHub-GitbyShantanu-181717?style=for-the-badge&logo=github)](https://github.com/GitbyShantanu)
-
-</div>
+This project is a core feature of the **ShanTech** portfolio, demonstrating robust asynchronous architectures and AI integration patterns.
